@@ -4,8 +4,8 @@ from led_tracker import LEDTracker
 from triangulation import Box3DTracker
 
 # Cameras
-front_cam = LEDTracker(camera=1, threshold=220)
-side_cam = LEDTracker(camera=2, threshold=220)
+front_cam = LEDTracker(camera = 1, threshold = 220)
+side_cam = LEDTracker(camera = 2, threshold = 220)
 
 box_tracker = Box3DTracker()
 
@@ -29,7 +29,7 @@ TARGET_Y = (box_tracker.y_min_cm + box_tracker.y_max_cm) / 2
 TARGET_Z = (box_tracker.z_min_cm + box_tracker.z_max_cm) / 2
 
 
-def clamp(v, min_val=0, max_val=100):
+def clamp(v, min_val = 0, max_val = 100):
     return max(min_val, min(max_val, v))
 
 
@@ -76,19 +76,10 @@ def center_drone():
     thrust_adjust = error_y * KP_Y
 
 
-    # Quad motor layout
-    #
-    #        FRONT
-    #    M1        M2
-    #
-    #    M4        M3
-    #        BACK
-    #
-
-    m1 = BASE_THRUST - pitch_adjust - roll_adjust + thrust_adjust
-    m2 = BASE_THRUST - pitch_adjust + roll_adjust + thrust_adjust
-    m3 = BASE_THRUST + pitch_adjust + roll_adjust + thrust_adjust
-    m4 = BASE_THRUST + pitch_adjust - roll_adjust + thrust_adjust
+    m1 = BASE_THRUST - pitch_adjust - roll_adjust + thrust_adjust # Front left
+    m2 = BASE_THRUST - pitch_adjust + roll_adjust + thrust_adjust # Front right
+    m3 = BASE_THRUST + pitch_adjust + roll_adjust + thrust_adjust # Back right
+    m4 = BASE_THRUST + pitch_adjust - roll_adjust + thrust_adjust # Back left
 
 
     # Clamp motor values

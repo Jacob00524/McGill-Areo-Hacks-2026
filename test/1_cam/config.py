@@ -1,4 +1,4 @@
-# --- Camera & Vision ---
+t   # --- Camera & Vision ---
 CAM_FRONT_ID = 0
 CAM_SIDE_ID = 1
 # Green LED HSV values (Adjust during on-site calibration)

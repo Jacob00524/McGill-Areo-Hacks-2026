@@ -8,7 +8,7 @@ GREEN_UPPER = [80, 255, 255]
 # --- Physical Space (1m x 1m x 1m cage) ---
 # Conversion: Meters / Pixel (Example: 1m / 640px)
 M_PER_PX = 0.00156 
-HOVER_HEIGHT_M = 0.5
+HOVER_HEIGHT_M = 0.5 # y in triangulation
 TARGET_X_PX = 320  # Center of 640px width
 TARGET_Y_PX = 320  # Center of 640px width (Side cam)
 
