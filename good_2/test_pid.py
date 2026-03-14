@@ -3,9 +3,9 @@ from controller import controller
 def main():
     # Example current drone state
     state = {
-        "x": 0.20,          # meters
-        "y": -0.10,
-        "z": 0.35,
+        "x": 64,          # meters
+        "y": 3,
+        "z": 34,
 
         "vx": 0.00,         # m/s
         "vy": 0.00,
@@ -21,8 +21,8 @@ def main():
     # Desired hover point
     ref = {
         "x": 0.00,
-        "y": 0.00,
-        "z": 0.50,
+        "y": 10.0,
+        "z": 0.00,
     }
 
     motors = controller(state, ref)

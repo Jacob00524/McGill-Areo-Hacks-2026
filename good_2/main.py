@@ -21,10 +21,11 @@ t_prev = time.time()
 
 ref = {
     "x": 0.0,
-    "y": 0.0,
-    "z": 30.0,   # example hover height (cm)
+    "y": 30.0,
+    "z": 0.0,   # example hover height (cm)
 }
 
+green_LED(255)
 
 while True:
 
