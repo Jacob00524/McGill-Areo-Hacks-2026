@@ -19,9 +19,9 @@ class Box3DTracker:
 
         # Side camera: pixel -> z,y
         self.side_z_min_px = 0.0
-        self.side_z_max_px = 100.0
+        self.side_z_max_px = 1920.0
         self.side_y_min_px = 0.0
-        self.side_y_max_px = 100.0
+        self.side_y_max_px = 1080.0
 
         self.z_min_cm = 0.0
         self.z_max_cm = 100.0
