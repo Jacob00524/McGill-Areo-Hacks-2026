@@ -1,23 +1,47 @@
 import cv2
-from vision import LEDTracker
+from led_tracker import LEDTracker
+from triangulation import Box3DTracker
 
-tracker = LEDTracker()
+front_cam = LEDTracker(camera=0, threshold=220)
+side_cam = LEDTracker(camera=1, threshold=220)
+
+box_tracker = Box3DTracker()
 
 while True:
-    result = tracker.update()
-    if result is None:
+    front_result = front_cam.update()
+    side_result = side_cam.update()
+
+    if front_result is None or side_result is None:
         break
 
-    frame, thresh = result
-    x, y = tracker.get_position()
+    front_frame, front_thresh = front_result
+    side_frame, side_thresh = side_result
 
-    if x is not None:
-        print(f"LED position: ({x}, {y})")
+    front_pos = front_cam.get_position()
+    side_pos = side_cam.get_position()
 
-    cv2.imshow("Drone LED Tracking", frame)
-    cv2.imshow("Threshold", thresh)
+    xyz = box_tracker.compute_xyz(front_pos, side_pos)
 
-    if cv2.waitKey(1) & 0xFF == ord("q"):
+    if xyz is not None:
+        x, y, z = xyz
+        print(f"X={x:.2f} cm, Y={y:.2f} cm, Z={z:.2f} cm")
+
+        cv2.putText(
+            front_frame,
+            f"X={x:.1f} Y={y:.1f} Z={z:.1f}",
+            (10, 60),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (255, 255, 255),
+            2
+        )
+
+    cv2.imshow("Front Camera", front_frame)
+    cv2.imshow("Side Camera", side_frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-tracker.release()
+front_cam.release()
+side_cam.release()
+cv2.destroyAllWindows()
