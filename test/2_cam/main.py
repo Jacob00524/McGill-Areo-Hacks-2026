@@ -1,12 +1,14 @@
 import cv2
 from led_tracker import LEDTracker
 from triangulation import Box3DTracker
-import drone
+from drone import *
 
-front_cam = LEDTracker(camera=1, threshold=220)
-side_cam = LEDTracker(camera=2, threshold=220)
+front_cam = LEDTracker(camera=1, threshold=210)
+side_cam = LEDTracker(camera=2, threshold=210)
 
 box_tracker = Box3DTracker()
+
+#green_LED(255)
 
 while True:
     front_result = front_cam.update()

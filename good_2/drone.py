@@ -7,20 +7,16 @@ because processing time doing wifi stuff is processing time not spent updating t
 which will lead to increased drift
 """
 
-
-
-
-
 import socket
 import select
 
 def empty_socket(sock):
-    input_ready, _, _ = select.select([sock], [], [], 0.0)
+    input_ready, _, _ = select.select([sock], [], 0.0)
     while input_ready:
         data = sock.recv(1)
         if not data:
             break
-        input_ready, _, _ = select.select([sock], [], [], 0.0)
+        input_ready, _, _ = select.select([sock], [], 0.0)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("192.168.4.1", 8080))
@@ -111,13 +107,6 @@ def set_yaw(y): # directly sets motor difference for yaw control
 
 def get_firmware_version():
     return msg("vers")
-
-
-
-
-
-
-
 
 # the following functions only work if firmware 1.2 or higher is installed on the drone
 # if you want to use this, please make sure by running msg("vers")
