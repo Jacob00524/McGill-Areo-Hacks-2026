@@ -1,78 +1,54 @@
 import cv2
 import numpy as np
 
-
 class LEDTracker:
-    def __init__(self, camera=0, threshold=220):
-        self.cap = cv2.VideoCapture(camera)
-        self.threshold = threshold
-        self.x = None
-        self.y = None
-        self.radius = 0
+    def __init__(self):
+        # Index 0 is usually your primary camera
+        self.cap = cv2.VideoCapture(0)
+        
+        # Tuning the Green LED range:
+        # Hue: 40-80 (Green) | Saturation: 100-255 | Value: 100-255
+        self.lower_green = np.array([40, 100, 100])
+        self.upper_green = np.array([80, 255, 255])
+        
+        self.current_x = None
+        self.current_y = None
 
     def update(self):
         ret, frame = self.cap.read()
         if not ret:
             return None
 
-        blurred = cv2.GaussianBlur(frame, (9, 9), 0)
-        gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
+        # 1. BGR to HSV conversion
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        _, thresh = cv2.threshold(gray, self.threshold, 255, cv2.THRESH_BINARY)
+        # 2. Thresholding (The Mask)
+        mask = cv2.inRange(hsv, self.lower_green, self.upper_green)
+        
+        # 3. Noise reduction (Removes tiny random bright spots)
+        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
 
-        kernel = np.ones((3, 3), np.uint8)
-        thresh = cv2.erode(thresh, kernel, iterations=1)
-        thresh = cv2.dilate(thresh, kernel, iterations=2)
-
-        contours, _ = cv2.findContours(
-            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )
-
-        self.x = None
-        self.y = None
-        self.radius = 0
-
+        # 4. Find the LED position
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
         if contours:
-            largest = max(contours, key=cv2.contourArea)
-
-            if cv2.contourArea(largest) > 5:
-                ((x, y), radius) = cv2.minEnclosingCircle(largest)
-                M = cv2.moments(largest)
-
-                if M["m00"] != 0:
-                    self.x = int(M["m10"] / M["m00"])
-                    self.y = int(M["m01"] / M["m00"])
-                    self.radius = int(radius)
-
-                    # Draw tracking marker
-                    cv2.circle(frame, (self.x, self.y), self.radius, (0, 255, 0), 2)
-                    cv2.circle(frame, (self.x, self.y), 5, (0, 0, 255), -1)
-
-                    cv2.putText(
-                        frame,
-                        f"LED: ({self.x}, {self.y})",
-                        (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.8,
-                        (0, 255, 0),
-                        2,
-                    )
+            # Assume the largest green blob is our drone
+            best_cnt = max(contours, key=cv2.contourArea)
+            M = cv2.moments(best_cnt)
+            if M["m00"] > 0:
+                self.current_x = int(M["m10"] / M["m00"])
+                self.current_y = int(M["m01"] / M["m00"])
+                
+                # Draw a circle on the frame so we can see it working
+                cv2.circle(frame, (self.current_x, self.current_y), 10, (0, 255, 0), 2)
         else:
-            cv2.putText(
-                frame,
-                "LED: not found",
-                (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (0, 0, 255),
-                2,
-            )
+            self.current_x, self.current_y = None, None
 
-        return frame, thresh
+        return frame, mask
 
     def get_position(self):
-        return self.x, self.y
+        return self.current_x, self.current_y
 
     def release(self):
         self.cap.release()
-        cv2.destroyAllWindows()
