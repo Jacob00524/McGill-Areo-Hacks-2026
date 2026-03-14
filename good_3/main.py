@@ -4,6 +4,7 @@ from triangulation import Box3DTracker
 import drone
 from controller import controller
 import time
+import auto_control
 
 ref = {
     "x": 0.0,
@@ -11,19 +12,19 @@ ref = {
     "z": 0.0,
 }
 
-front_cam = LEDTracker(camera=1, threshold=220)
-side_cam = LEDTracker(camera=2, threshold=220)
+front_cam = LEDTracker(camera=0, threshold=220)
+side_cam = LEDTracker(camera=1, threshold=220)
 
 box_tracker = Box3DTracker()
 
 drone.green_LED(0)
-#recalibrate()
-#time.sleep(15)
-
-time.sleep(2)
+drone.recalibrate()
+time.sleep(1) # 15
 
 drone.set_mode(1)
 drone.green_LED(1)
+
+drone.set_yaw(0)
 
 t_prev = time.time()
 x_prev = -1
@@ -35,7 +36,7 @@ while True:
     side_result = side_cam.update()
 
     if front_result is None or side_result is None:
-        print("Error fetching view from camera")
+        print("Error fetching view from camera\n")
         break
 
     front_frame = front_result
@@ -46,10 +47,10 @@ while True:
 
     xyz = box_tracker.compute_xyz(front_pos, side_pos)
 
-    if xyz is None:
-        print("None.")
+    if (xyz) is None:
+        print("using manual controlls...\n")
         continue
-    x, y, z = xyz
+    (x, y, z) = xyz
     print(f"X={x:.2f} Y={y:.2f} Z={z:.2f}")
 
     # Approx. velocity
@@ -57,13 +58,15 @@ while True:
     if (x_prev == -1 and y_prev == -1 and z_prev == -1):
         t_prev = t
         continue
+
+    vx = (x - x_prev) / dt
+    vy = (y - y_prev) / dt
+    vz = (z - z_prev) / dt
+
     x_prev = x
     y_prev = y
     z_prev = z
     dt = t - t_prev
-    vx = (x - x_prev) / dt
-    vy = (y - y_prev) / dt
-    vz = (z - z_prev) / dt
 
     roll = drone.get_roll()
     pitch = drone.get_pitch()
@@ -89,7 +92,7 @@ while True:
 
     motors = controller(state, ref)
     motors = [max(0, min(250, int(m))) for m in motors]
-    # manual_thrusts(motors[0], motors[1], motors[2], motors[3])
+    drone.manual_thrusts(motors[0], motors[1], motors[2], motors[3])
     cv2.putText(
         front_frame,
         f"X={x:.1f} Y={y:.1f} Z={z:.1f}",
