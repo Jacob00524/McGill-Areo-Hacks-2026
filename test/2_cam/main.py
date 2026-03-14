@@ -1,6 +1,7 @@
 import cv2
 from led_tracker import LEDTracker
 from triangulation import Box3DTracker
+import drone
 
 front_cam = LEDTracker(camera=1, threshold=220)
 side_cam = LEDTracker(camera=2, threshold=220)
@@ -41,6 +42,8 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    elif cv2.waitKey(1) & 0xFF == ord('e'):
+        emergency_stop()
 
 front_cam.release()
 side_cam.release()
