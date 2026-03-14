@@ -8,11 +8,21 @@ which will lead to increased drift
 """
 
 import socket
+import select
+
+def empty_socket(sock):
+    input_ready, _, _ = select.select([sock], [], 0.0)
+    while input_ready:
+        data = sock.recv(1)
+        if not data:
+            break
+        input_ready, _, _ = select.select([sock], [], 0.0)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("192.168.4.1", 8080))
 
 def msg(tx):
+    empty_socket(s)
     s.sendall((tx + "\n").encode("ASCII"))
     rx = ""
     while not rx.endswith("\n"):
