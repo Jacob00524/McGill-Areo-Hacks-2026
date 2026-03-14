@@ -46,7 +46,7 @@ def manual_thrusts(A, B, C, D):
 
 # same as prev function, but increments last value instead of overwriting
 def increment_thrusts(A, B, C, D):
-    msg("manT\n" + str(A) + "," + str(B) + "," + str(C) + "," + str(D) + "\n")
+    msg("incT\n" + str(A) + "," + str(B) + "," + str(C) + "," + str(D) + "\n")
 
 def get_pitch(): # unit close-ish to degrees, but not exact
     return float(msg("angX")) / 16
@@ -98,3 +98,18 @@ def get_i_values():
 
 def set_yaw(y): # directly sets motor difference for yaw control
     msg("yaw" + str(y))
+
+def get_firmware_version():
+    return msg("vers")
+
+# the following functions only work if firmware 1.2 or higher is installed on the drone
+# if you want to use this, please make sure by running msg("vers")
+
+# use at start of code if you want to use the drone outside of the cage. Overrides all mode changes
+def lock_props():
+    msg("lck")
+
+# recalibrates the gyroscope.
+# Do not communicate with the drone for 15 seconds after calling this
+def recalibrate():
+    msg("rst")
