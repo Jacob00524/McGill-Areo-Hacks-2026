@@ -1,34 +1,24 @@
 import cv2
 from led_tracker import LEDTracker
-from triangulation import Box3DTracker
 
-front_cam = LEDTracker(camera=1, threshold=220)
-side_cam = LEDTracker(camera=2, threshold=220)
-
-box_tracker = Box3DTracker()
+cam = LEDTracker(camera=0, threshold=220)
 
 while True:
-    front_result = front_cam.update()
-    side_result = side_cam.update()
+    result = cam.update()
 
-    if front_result is None or side_result is None:
+    if result is None:
         break
 
-    front_frame, front_thresh = front_result
-    side_frame, side_thresh = side_result
+    frame, thresh = result
+    pos = cam.get_position()
 
-    front_pos = front_cam.get_position()
-    side_pos = side_cam.get_position()
-
-    xyz = box_tracker.compute_xyz(front_pos, side_pos)
-
-    if xyz is not None:
-        x, y, z = xyz
-        print(f"X={x:.2f} cm, Y={y:.2f} cm, Z={z:.2f} cm")
+    if pos is not None:
+        x, y = pos
+        print(f"X={x}, Y={y}")
 
         cv2.putText(
-            front_frame,
-            f"X={x:.1f} Y={y:.1f} Z={z:.1f}",
+            frame,
+            f"X={x} Y={y}",
             (10, 60),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.7,
@@ -36,12 +26,11 @@ while True:
             2
         )
 
-    cv2.imshow("Front Camera", front_frame)
-    cv2.imshow("Side Camera", side_frame)
+    cv2.imshow("Camera 0", frame)
+    cv2.imshow("Threshold", thresh)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-front_cam.release()
-side_cam.release()
+cam.release()
 cv2.destroyAllWindows()
