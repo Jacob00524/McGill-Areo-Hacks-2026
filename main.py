@@ -2,8 +2,8 @@ import cv2
 from led_tracker import LEDTracker
 from triangulation import Box3DTracker
 
-front_cam = LEDTracker(camera=0, threshold=220)
-side_cam = LEDTracker(camera=1, threshold=220)
+front_cam = LEDTracker(camera=1, threshold=220)
+side_cam = LEDTracker(camera=2, threshold=220)
 
 box_tracker = Box3DTracker()
 

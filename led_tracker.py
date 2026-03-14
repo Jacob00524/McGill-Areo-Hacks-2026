@@ -10,16 +10,24 @@ class LEDTracker:
         self.y = None
         self.radius = 0
 
+        # HSV range for green light
+        self.lower_green = np.array([40, 80, 80])
+        self.upper_green = np.array([90, 255, 255])
+
     def update(self):
         ret, frame = self.cap.read()
         if not ret:
             return None
 
         blurred = cv2.GaussianBlur(frame, (9, 9), 0)
-        gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
 
-        _, thresh = cv2.threshold(gray, self.threshold, 255, cv2.THRESH_BINARY)
+        # Convert to HSV
+        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
+        # Create mask for green
+        thresh = cv2.inRange(hsv, self.lower_green, self.upper_green)
+
+        # Clean noise
         kernel = np.ones((3, 3), np.uint8)
         thresh = cv2.erode(thresh, kernel, iterations=1)
         thresh = cv2.dilate(thresh, kernel, iterations=2)
@@ -34,6 +42,7 @@ class LEDTracker:
 
         if contours:
             largest = max(contours, key=cv2.contourArea)
+
             if cv2.contourArea(largest) > 5:
                 ((x, y), radius) = cv2.minEnclosingCircle(largest)
                 M = cv2.moments(largest)
