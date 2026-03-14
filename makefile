@@ -3,4 +3,3 @@ default:
 	source ./env/bin/activate
 	git submodule update --init
 	$(MAKE) -C crazyflie-clients-python
-
