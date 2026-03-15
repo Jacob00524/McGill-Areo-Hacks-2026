@@ -105,11 +105,12 @@ def center_drone():
     cv2.imshow("Front Camera", front_frame)
     cv2.imshow("Side Camera", side_frame)
 
-
-# Main control loop
 while True:
-
     center_drone()
-
-    if cv2.waitKey(1) & 0xFF == 27:
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
+    elif key == ord('e'):
+        emergency_stop()
+        break
+
